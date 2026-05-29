@@ -18,6 +18,8 @@ ConvNeXt V2: Co-designing and Scaling ConvNets with Masked Autoencoders ([논문
 | Top-1 Accuracy | **86.13%** | 86.3% |
 | Top-5 Accuracy | **97.76%** | - |
 
+![reproduction](figures/reproduction.png)
+
 ### ConvNeXt V1 vs V2 비교 (Large 기준)
 | 지표 | V1 | V2 | 개선 |
 |------|----|----|------|
@@ -25,6 +27,14 @@ ConvNeXt V2: Co-designing and Scaling ConvNets with Masked Autoencoders ([논문
 | Top-5 Accuracy | 96.84% | 97.55% | +0.71% |
 | 파라미터 수 | 197.8M | 198.0M | +0.2M |
 | 처리 속도 | 203 img/s | 154 img/s | -50 img/s |
+
+![accuracy](figures/accuracy_comparison.png)
+
+![tradeoff](figures/tradeoff.png)
+
+### Demo 결과 (V1 vs V2 예측 비교)
+
+![demo](figures/demo_results.png)
 
 ## 핵심 기여 (논문 요약)
 
