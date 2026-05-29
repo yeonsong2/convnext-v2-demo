@@ -14,16 +14,32 @@ ConvNeXt V2: Co-designing and Scaling ConvNets with Masked Autoencoders ([논문
 
 ### 전체 모델 크기 재현 결과
 
-| 모델 | 재현 Top-1 | 논문 Top-1 | 차이 |
-|------|-----------|-----------|------|
-| V2-Tiny  | 82.67% | 82.7% | -0.03% |
-| V2-Base  | 84.73% | 84.9% | -0.17% |
-| V2-Large | 85.56% | 85.5% | +0.06% |
-| V2-Huge  | 86.13% | 86.3% | -0.17% |
+**평가 방법**
+- 체크포인트: Facebook Research 공식 배포 ImageNet-1K fine-tuned weights (`convnextv2_{size}_1k_224_ema.pt`)
+- 평가 데이터: ImageNet-1K validation set (50,000장)
+- 입력 크기: Single crop 224×224 (Resize 256 → CenterCrop 224)
+- 정규화: mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+- 하드웨어: NVIDIA RTX A6000 48GB × 1 (GPU 7)
+- 실행 횟수: 1회 (각 모델 단일 실행)
+
+| 모델 | 체크포인트 | 재현 Top-1 | 재현 Top-5 | 논문 Top-1 | 차이 |
+|------|-----------|-----------|-----------|-----------|------|
+| V2-Tiny  | convnextv2_tiny_1k_224_ema.pt  | 82.67% | 96.31% | 82.7% | -0.03% |
+| V2-Base  | convnextv2_base_1k_224_ema.pt  | 84.73% | 97.13% | 84.9% | -0.17% |
+| V2-Large | convnextv2_large_1k_224_ema.pt | 85.56% | 97.55% | 85.5% | +0.06% |
+| V2-Huge  | convnextv2_huge_1k_224_ema.pt  | 86.13% | 97.76% | 86.3% | -0.17% |
+
+> 모든 수치는 논문 원본과 ±0.2% 이내로 일치
 
 ![reproduction](figures/reproduction.png)
 
 ### ConvNeXt V1 vs V2 비교 (Large 기준)
+
+**평가 방법**
+- V1 체크포인트: `convnext_large_1k_224_ema.pth` (Facebook Research 공식 배포)
+- V2 체크포인트: `convnextv2_large_1k_224_ema.pt`
+- 동일한 ImageNet-1K val, Single crop 224×224 환경에서 평가
+- 처리 속도: batch size 128, GPU warmup 10회 후 100 iteration 평균
 
 | 지표 | V1 | V2 | 개선 |
 |------|----|----|------|
@@ -31,6 +47,12 @@ ConvNeXt V2: Co-designing and Scaling ConvNets with Masked Autoencoders ([논문
 | Top-5 Accuracy | 96.84% | 97.55% | +0.71% |
 | 파라미터 수 | 197.8M | 198.0M | 거의 동일 |
 | 처리 속도 | 203 img/s | 154 img/s | -50 img/s |
+
+**처리 속도 차이 (V1: 203 → V2: 154 img/s) 원인:**
+V2는 각 블록의 MLP 내부에 GRN(Global Response Normalization) 레이어가 추가됨.
+GRN은 채널별 L2 norm 계산 및 정규화 연산을 포함하므로 블록당 약간의 추가 연산이 발생.
+파라미터 수는 거의 동일(+0.2M)하지만 forward pass 연산량이 늘어나 속도가 약 24% 감소.
+그러나 Top-1 정확도는 +1.39% 향상되어 **정확도-속도 트레이드오프에서 V2가 우위**.
 
 ![accuracy](figures/accuracy_comparison.png)
 
@@ -78,7 +100,17 @@ V2 Block: DWConv → LN → MLP → GRN        ← 핵심 차이
 ## 설치
 
 ```bash
-pip install torch torchvision
+pip install -r requirements.txt
+```
+
+**requirements.txt**
+```
+torch==2.1.0
+torchvision==0.16.0
+Pillow>=9.0.0
+numpy>=1.24.0
+matplotlib>=3.7.0
+PyGithub>=1.59.0
 ```
 
 ## 사용법
