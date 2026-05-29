@@ -81,17 +81,25 @@ ConvNeXt V1-Large vs V2-Large의 Top-5 예측을 비교.
 
 ## Ablation Study
 
-### Normalization 전략 비교 (논문 Table 3)
+### Normalization 전략 비교 (논문 Table 2d)
 
-GRN이 LayerScale(V1), BatchNorm, LayerNorm 등 다른 normalization 방법 대비
-가장 높은 fine-tuning 정확도를 보임. Baseline 대비 +0.8% 향상 (82.7% vs 81.9%).
+GRN이 LRN, BN, LN 대비 가장 높은 fine-tuning 정확도를 달성.
+BN은 마스킹된 입력에 구조적으로 맞지 않아 성능이 크게 떨어짐.
+GRN은 채널 간 global 정보를 활용해 가장 효과적인 정규화를 수행.
 
 ![ablation_grn](figures/ablation_grn.png)
 
-### FCMAE 사전학습 효과 (논문 Table 4)
+### FCMAE 사전학습 효과 (Co-design, 논문 Table 4)
 
-FCMAE 사전학습을 추가할수록 모든 모델 크기에서 정확도가 향상됨.
-특히 GRN과 함께 사용(Full V2)할 때 시너지가 극대화되어 최고 성능 달성.
+| 조합 | Top-1 |
+|------|-------|
+| V1 + Supervised 300ep | 83.8% |
+| V1 + FCMAE | 83.7% ← **오히려 손해** |
+| V2 + FCMAE | **84.6%** ← GRN과 함께해야 효과 |
+
+→ FCMAE는 V1 아키텍처에 맞지 않아 성능이 오히려 하락.
+GRN이 FCMAE 학습 중 발생하는 feature collapse를 해결하기 때문에,
+**FCMAE + GRN을 함께 써야 시너지 발생** (논문 핵심 주장).
 
 ![ablation_fcmae](figures/ablation_fcmae.png)
 
