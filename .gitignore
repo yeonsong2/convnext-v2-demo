@@ -1,0 +1,16 @@
+# 체크포인트 (용량 너무 큼)
+checkpoints/
+checkpoints/*.pt
+checkpoints/*.pth
+
+# 임시 파일
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+
+# 데모 이미지 (ImageNet 라이선스)
+demo_images/
+
+# OS
+.DS_Store
