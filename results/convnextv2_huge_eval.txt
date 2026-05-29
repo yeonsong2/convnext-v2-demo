@@ -1,0 +1,5 @@
+Model: convnextv2_huge
+Checkpoint: checkpoints/convnextv2_huge_1k_224.pt
+Input size: 224
+Top-1: 86.13%
+Top-5: 97.76%
