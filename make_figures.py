@@ -27,23 +27,28 @@ def save(fig, name):
 def fig_accuracy():
     sizes   = ["Tiny", "Base", "Large", "Huge"]
     v1_top1 = [82.1,   83.8,   84.3,   84.7]
-    v2_top1 = [82.7,   84.9,   85.5,   86.3]   # 논문 수치 (Huge는 V2만)
+    v2_top1 = [82.7,   84.9,   85.5,   86.3]   # 논문 수치
+    v2_ours = [82.67,  84.73,  85.56,  86.13]  # 재현 결과
 
     x = np.arange(len(sizes))
-    w = 0.35
+    w = 0.25
 
-    fig, ax = plt.subplots(figsize=(8, 5))
-    b1 = ax.bar(x - w/2, v1_top1, w, label="ConvNeXt V1", color=C_V1, edgecolor="white")
-    b2 = ax.bar(x + w/2, v2_top1, w, label="ConvNeXt V2", color=C_V2, edgecolor="white")
+    fig, ax = plt.subplots(figsize=(9, 5))
+    b1 = ax.bar(x - w,   v1_top1, w, label="ConvNeXt V1 (Paper)", color=C_V1,    edgecolor="white")
+    b2 = ax.bar(x,       v2_top1, w, label="ConvNeXt V2 (Paper)", color=C_V2,    edgecolor="white")
+    b3 = ax.bar(x + w,   v2_ours, w, label="ConvNeXt V2 (Ours)",  color="#6DBF87", edgecolor="white")
 
-    # 값 레이블
     for bar in b1:
         ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.05,
-                f"{bar.get_height():.1f}", ha="center", va="bottom", fontsize=9)
+                f"{bar.get_height():.1f}", ha="center", va="bottom", fontsize=8)
     for bar in b2:
         ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.05,
-                f"{bar.get_height():.1f}", ha="center", va="bottom", fontsize=9,
+                f"{bar.get_height():.1f}", ha="center", va="bottom", fontsize=8,
                 color=C_V2, fontweight="bold")
+    for bar in b3:
+        ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.05,
+                f"{bar.get_height():.2f}", ha="center", va="bottom", fontsize=8,
+                color="#2E8B57", fontweight="bold")
 
     ax.set_xlabel("Model Size")
     ax.set_ylabel("Top-1 Accuracy (%)")
@@ -59,19 +64,22 @@ def fig_accuracy():
 
 # ── 2. V2-Huge 재현 결과 vs 논문 수치 ──────────────────
 def fig_reproduction():
-    labels  = ["Top-1 (Paper)", "Top-1 (Ours)", "Top-5 (Ours)"]
-    values  = [86.3,           86.13,          97.76]
-    colors  = ["#aaa",         C_V2,           "#6DBF87"]
+    labels  = ["Tiny\n(Paper)", "Tiny\n(Ours)", "Base\n(Paper)", "Base\n(Ours)",
+               "Large\n(Paper)", "Large\n(Ours)", "Huge\n(Paper)", "Huge\n(Ours)"]
+    values  = [82.7, 82.67, 84.9, 84.73, 85.5, 85.56, 86.3, 86.13]
+    colors = [C_V2 if i % 2 == 0 else "#6DBF87" for i in range(len(values))]
 
-    fig, ax = plt.subplots(figsize=(6, 4))
-    bars = ax.bar(labels, values, color=colors, edgecolor="white", width=0.5)
+    fig, ax = plt.subplots(figsize=(11, 4.5))
+    bars = ax.bar(labels, values, color=colors, edgecolor="white", width=0.6)
     for bar, val in zip(bars, values):
-        ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.1,
-                f"{val:.2f}%", ha="center", va="bottom", fontsize=11, fontweight="bold")
+        ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.02,
+                f"{val:.2f}%", ha="center", va="bottom", fontsize=9, fontweight="bold")
 
-    ax.set_ylabel("Accuracy (%)")
-    ax.set_title("ConvNeXt V2-Huge — Paper vs Reproduced")
-    ax.set_ylim(84, 100)
+    from matplotlib.patches import Patch
+    ax.legend(handles=[Patch(color=C_V2, label="Paper"), Patch(color="#6DBF87", label="Ours")])
+    ax.set_ylabel("Top-1 Accuracy (%)")
+    ax.set_title("ConvNeXt V2 — Paper vs Reproduced (All Sizes)")
+    ax.set_ylim(81, 88)
     ax.grid(axis="y", alpha=0.3)
     fig.tight_layout()
     save(fig, "reproduction.png")
